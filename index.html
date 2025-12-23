@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CinemaVault - Your Movie Review Hub</title>
+  <meta name="description" content="Discover and explore movie reviews, ratings, and detailed information about your favorite films.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">🎬</div>
+        <div class="logo-text">
+          <h1>CinemaVault</h1>
+          <p>Your Movie Review Hub</p>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="active">Home</a>
+        <a href="directors.html">Directors</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button class="mobile-menu-btn" aria-label="Menu">☰</button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h2>
+        Discover Your Next
+        <span class="accent-text">Favorite Movie</span>
+      </h2>
+      <p>Explore our curated collection of movie reviews and ratings from critics and audiences worldwide</p>
+    </div>
+  </section>
+
+  <!-- Filters Section -->
+  <section class="filters">
+    <div class="filters-container">
+      <div class="search-sort">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            class="search-input" 
+            id="searchInput" 
+            placeholder="Search movies..."
+            autocomplete="off"
+          >
+        </div>
+        <div class="sort-box">
+          <span class="sort-icon">⚙️</span>
+          <select class="sort-select" id="sortSelect">
+            <option value="rating">Highest Rated</option>
+            <option value="year">Latest Release</option>
+            <option value="alphabetical">Alphabetical</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="genre-filters">
+        <h3>Filter by Genre</h3>
+        <div class="genre-buttons" id="genreButtons">
+          <!-- Genre buttons will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Movies Section -->
+  <section class="movies-section">
+    <div class="movies-container">
+      <div class="movies-header">
+        <p class="movies-count" id="moviesCount">Loading movies...</p>
+      </div>
+      <div class="movies-grid" id="moviesGrid">
+        <!-- Movie cards will be dynamically inserted here -->
+      </div>
+      <div class="no-results" id="noResults" style="display: none;">
+        <p>No movies found matching your criteria</p>
+        <button class="btn" id="clearFilters">Clear Filters</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 CinemaVault. All rights reserved.</p>
+    <p>Your trusted source for movie reviews and ratings</p>
+  </footer>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

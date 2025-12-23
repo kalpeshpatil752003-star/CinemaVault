@@ -1,0 +1,102 @@
+Name : Kalepesh Patil   :  Dilshadh Shaikh 
+roll no: 129 : 156
+Div : c
+
+1. Project Overview
+CinemaVault is a front-end movie discovery platform that allows users to browse a curated collection of films, view detailed information (including synopses, cast, and trailers), and read community reviews. The project is designed for high performance using ES Modules and a static data-driven approach.
+
+2. Technical Stack
+Language: JavaScript (Converted from TypeScript for browser compatibility).
+
+Architecture: Modular Scripting (ESM).
+
+Data Format: Object-Oriented Arrays.
+
+Styling: CSS3 Variable-based theming (referenced in logic).
+
+3. File Structure & Responsibilities
+├── index.html          # Main movie list page
+├── detail.html         # Movie detail page
+├── directors.html      # Directors page with filmographies
+├── styles.css          # All CSS styles
+├── data.js             # Compiled movie data (JavaScript)
+├── main.js             # Compiled movie list logic (JavaScript)
+├── detail.js           # Compiled movie detail logic (JavaScript)
+└── directors.js        # Compiled directors page logic (JavaScript)
+data.js
+This is the Core Database of the application. It acts as a local API.
+
+Movie Objects: Contains 30+ unique entries starting from id: "1" (Inglourious Basterds) through the Fantasy Sagas ending at id: "30" (The Golden Compass).
+
+Schema:
+
+id: Unique string identifier.
+
+title/year/director: Basic metadata.
+
+genres: Array of categories used for filtering.
+
+poster: URL string for visual rendering.
+
+trailer: YouTube embed URL.
+
+reviews: An array of Review objects containing author, rating, and comment.
+
+detail.js
+This file contains the Dynamic Rendering Engine for the movie detail pages.
+
+URL Parsing: Uses URLSearchParams to detect the ?id= parameter from the web address.
+
+Dynamic Injection:
+
+renderMovieDetail(): Targets the #movieDetail DOM element to inject HTML templates for the movie's specific data.
+
+renderReviews(): Iterates through the movie's review array to build the comment section.
+
+Star Logic: generateStars() converts numerical ratings (e.g., 4.5) into visual star icons (★).
+
+4. Feature Highlights
+The Fantasy Collection (IDs 13–30)
+The database features a dedicated "Epic Fantasy" expansion, where every part of major trilogies and sagas is stored as a separate entity:
+
+The Lord of the Rings: 3 separate entries (Fellowship, Two Towers, Return of the King).
+
+Harry Potter: 8 separate entries covering the full decade of films.
+
+Fantastic Beasts: 3 separate entries.
+
+Narnia: The complete Walden Media trilogy.
+
+Mock Review System
+Every movie is equipped with at least one high-quality mock review to demonstrate the UI's capability to handle:
+
+User Sentiments: Short and long-form feedback.
+
+Time-stamping: All reviews include a date string for chronological display.
+
+Unique Authors: Simulated community engagement.
+
+
+5. Database Schema (data.js)
+To keep the site running smoothly, every movie entry must follow this JavaScript object structure
+
+Property,Type,Description
+id,String,"Must be unique (e.g., ""1"", ""2"", ""13"")."
+title,String,The full name of the movie.
+poster,String,A full URL to an image (JPG/PNG).
+genres,Array,"A list of categories like [""Fantasy"", ""Action""]."
+trailer,String,"A YouTube embed link (e.g., https://www.youtube.com/embed/ID)."
+reviews,Array,"A collection of objects containing author, rating, comment, and date."
+
+6. Maintenance Guide
+Adding a New Movie
+Open data.js.
+
+Add a new object to the movies array.
+
+Ensure the id follows the next increment (e.g., "31").
+
+Verify the trailer link is in the https://www.youtube.com/embed/[ID] format to avoid iframe blocking.
+
+Editing a Poster
+Locate the movie by its title or id and update the poster string with a new URL from a reliable image host (like Amazon M-Media or IMDB).
