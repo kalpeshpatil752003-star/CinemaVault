@@ -168,3 +168,9 @@ if (document.readyState === 'loading') {
 else {
     init();
 }
+const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const nav = document.querySelector('.nav');
+
+  mobileMenuBtn.addEventListener('click', () => {
+    nav.classList.toggle('nav-open');
+  });
