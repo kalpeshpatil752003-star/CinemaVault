@@ -675,16 +675,12 @@ button {
 }
 
 @media (max-width: 768px) {
-  .nav.nav-open {
-    display: flex;
-    position: absolute;
-    top: 70px;
-    right: 0;
-    flex-direction: column;
-    background-color: var(--color-bg-secondary);
-    padding: 1rem 2rem;
-    gap: 1rem;
-    border-radius: 0 0 0 12px;
+  .nav {
+    display: none;
+  }
+  
+  .mobile-menu-btn {
+    display: block;
   }
   
   .hero h2 {
@@ -924,4 +920,5 @@ button {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
   }
+
 }
