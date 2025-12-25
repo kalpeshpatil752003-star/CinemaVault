@@ -2,13 +2,17 @@
 import {
   fetchPopularMovies,
   searchMovies,
+  fetchGenres,
   IMAGE_BASE_URL
 } from './api/tmdb.js';
+
 
 
 let currentSearchQuery = '';
 let selectedGenres = ['All'];
 let currentSortBy = 'rating';
+let genres = [];
+
 const searchInput = document.getElementById('searchInput');
 const sortSelect = document.getElementById('sortSelect');
 const genreButtons = document.getElementById('genreButtons');
@@ -20,25 +24,31 @@ let movies = [];
 
 async function init() {
   try {
-    const apiMovies = await fetchPopularMovies();
+    const apiMovies = await fetchPopularMovies(3);
+    const apiGenres = await fetchGenres();
+
+    genres = ['All', ...apiGenres.map(g => g.name)];
 
     movies = apiMovies.map(movie => ({
       id: movie.id.toString(),
       title: movie.title,
       year: new Date(movie.release_date).getFullYear(),
-      rating: movie.vote_average / 2, // convert 10 → 5 scale
+      rating: movie.vote_average / 2,
       reviewCount: movie.vote_count,
       poster: IMAGE_BASE_URL + movie.poster_path,
-      genres: [], // optional for now
+      genres: movie.genre_ids.map(
+        id => apiGenres.find(g => g.id === id)?.name
+      ).filter(Boolean)
     }));
 
+    renderGenreButtons();
     renderMovies();
     attachEventListeners();
   } catch (error) {
-    console.error("API failed, fallback to local data");
-    renderMovies(); // fallback if needed
+    console.error(error);
   }
 }
+
 
 function renderGenreButtons() {
     genreButtons.innerHTML = genres.map(genre => `

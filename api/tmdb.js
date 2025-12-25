@@ -12,6 +12,16 @@ export async function searchMovies(query) {
   return data.results;
 }
 
+//genre function
+export async function fetchGenres() {
+  const response = await fetch(
+    `${BASE_URL}/genre/movie/list?api_key=${TMDB_API_KEY}&language=en-US`
+  );
+  const data = await response.json();
+  return data.genres; // [{id, name}]
+}
+
+
 
 
 // Fetch popular movies
