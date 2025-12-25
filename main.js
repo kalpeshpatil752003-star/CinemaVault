@@ -1,4 +1,11 @@
-import { movies, genres } from './data.js';
+
+import {
+  fetchPopularMovies,
+  searchMovies,
+  IMAGE_BASE_URL
+} from './api/tmdb.js';
+
+
 let currentSearchQuery = '';
 let selectedGenres = ['All'];
 let currentSortBy = 'rating';
@@ -9,11 +16,30 @@ const moviesGrid = document.getElementById('moviesGrid');
 const moviesCount = document.getElementById('moviesCount');
 const noResults = document.getElementById('noResults');
 const clearFiltersBtn = document.getElementById('clearFilters');
-function init() {
-    renderGenreButtons();
+let movies = [];
+
+async function init() {
+  try {
+    const apiMovies = await fetchPopularMovies();
+
+    movies = apiMovies.map(movie => ({
+      id: movie.id.toString(),
+      title: movie.title,
+      year: new Date(movie.release_date).getFullYear(),
+      rating: movie.vote_average / 2, // convert 10 → 5 scale
+      reviewCount: movie.vote_count,
+      poster: IMAGE_BASE_URL + movie.poster_path,
+      genres: [], // optional for now
+    }));
+
     renderMovies();
     attachEventListeners();
+  } catch (error) {
+    console.error("API failed, fallback to local data");
+    renderMovies(); // fallback if needed
+  }
 }
+
 function renderGenreButtons() {
     genreButtons.innerHTML = genres.map(genre => `
     <button 
@@ -127,10 +153,41 @@ function handleGenreClick(genre) {
     renderGenreButtons();
     renderMovies();
 }
-function handleSearch(query) {
-    currentSearchQuery = query;
-    renderMovies();
+
+function mapApiMovies(apiMovies) {
+  return apiMovies.map(movie => ({
+    id: movie.id.toString(),
+    title: movie.title,
+    year: movie.release_date
+      ? new Date(movie.release_date).getFullYear()
+      : 'N/A',
+    rating: movie.vote_average / 2,
+    reviewCount: movie.vote_count,
+    poster: movie.poster_path
+      ? IMAGE_BASE_URL + movie.poster_path
+      : 'fallback.jpg',
+    genres: []
+  }));
 }
+
+
+async function handleSearch(query) {
+  currentSearchQuery = query;
+
+  if (query.trim() === '') {
+    const apiMovies = await fetchPopularMovies(3);
+    movies = mapApiMovies(apiMovies);
+    renderMovies();
+    return;
+  }
+
+  const searchResults = await searchMovies(query);
+
+  movies = mapApiMovies(searchResults);
+  renderMovies();
+}
+
+
 function handleSortChange(sortBy) {
     currentSortBy = sortBy;
     renderMovies();

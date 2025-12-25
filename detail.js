@@ -1,5 +1,10 @@
-// JavaScript file for movie detail page functionality
-import { movies } from './data.js';
+import {
+  fetchMovieDetails,
+  fetchMovieCast,
+  fetchMovieTrailer,
+  IMAGE_BASE_URL
+} from "./api/tmdb.js";
+
 
 // Get movie ID from URL parameters
 function getMovieIdFromURL() {
@@ -152,24 +157,41 @@ function showError() {
 }
 
 // Initialize the detail page
-function init() {
+async function init() {
   const movieId = getMovieIdFromURL();
-  
   if (!movieId) {
     showError();
     return;
   }
 
-  const movie = movies.find(m => m.id === movieId);
-  
-  if (!movie) {
-    showError();
-    return;
-  }
+  try {
+    const movie = await fetchMovieDetails(movieId);
+    const cast = await fetchMovieCast(movieId);
+    const trailer = await fetchMovieTrailer(movieId);
 
-  renderMovieDetail(movie);
-  renderReviews(movie.reviews);
+    const formattedMovie = {
+      title: movie.title,
+      year: movie.release_date.split("-")[0],
+      runtime: movie.runtime,
+      director: "TMDB",
+      rating: movie.vote_average / 2,
+      reviewCount: movie.vote_count,
+      poster: IMAGE_BASE_URL + movie.poster_path,
+      genres: movie.genres.map(g => g.name),
+      synopsis: movie.overview,
+      cast: cast.slice(0, 6).map(c => c.name),
+      trailer: trailer
+        ? `https://www.youtube.com/embed/${trailer.key}`
+        : ""
+    };
+
+    renderMovieDetail(formattedMovie);
+    renderReviews([]); // optional: static reviews
+  } catch (error) {
+    showError();
+  }
 }
+
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
