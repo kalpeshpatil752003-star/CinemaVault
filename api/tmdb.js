@@ -1,4 +1,5 @@
-import { TMDB_API_KEY } from './keys.js';
+const TMDB_API_KEY = "f7919dfdb6ddf2bf5528aec022db0db9";
+
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
