@@ -151,3 +151,53 @@ Can be extended in the future with APIs and databases
 The CinemaVault project successfully demonstrates the use of core web development concepts to build a fully functional frontend application.
 It provides an intuitive interface for browsing movies, viewing detailed information, and exploring directors.
 This project strengthens understanding of DOM manipulation, modular JavaScript, responsive design, and UI/UX principles, making it a strong academic and portfolio-level project.
+
+
+
+---
+Added Later 
+
+
+## 🔌 API Integration (TMDB)
+
+This project was initially developed using a local static dataset (`data.js`).  
+Later, it was enhanced by integrating a real-world third-party REST API to fetch live movie data.
+
+---
+
+## 📡 API Used
+
+**The Movie Database (TMDB) API**
+
+- Provides real-time movie information
+- Includes popular movies, search results, ratings, posters, and metadata
+
+---
+
+## ⚙️ Implementation Details
+
+- API logic is isolated in a dedicated module:  
+  `api/tmdb.js`
+- API calls are handled using `fetch` with `async/await`
+- Multiple pages of popular movies are fetched and combined to display a larger dataset
+- Search functionality uses TMDB’s `/search/movie` endpoint
+
+---
+
+## ✨ Example API Features
+
+- Fetch popular movies (with pagination)
+- Search movies by title
+- Dynamic poster loading
+- Real-time ratings and review counts
+
+---
+
+## 🔐 API Key Handling
+
+- The TMDB API key is stored locally in `api/keys.js`
+- Sensitive files are excluded from version control using `.gitignore`
+- This prevents accidental exposure of API credentials on GitHub
+
+```txt
+.env
