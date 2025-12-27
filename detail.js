@@ -2,8 +2,10 @@ import {
   fetchMovieDetails,
   fetchMovieCast,
   fetchMovieTrailer,
-  IMAGE_BASE_URL
+  IMAGE_BASE_URL,
+  fetchMovieReviews
 } from "./api/tmdb.js";
+
 
 
 // Get movie ID from URL parameters
@@ -13,7 +15,7 @@ function getMovieIdFromURL() {
 }
 
 // Generate star rating HTML
-function generateStars(rating) {
+function generateStars(rating = 0) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
   let starsHTML = '';
@@ -119,25 +121,39 @@ function renderMovieDetail(movie) {
 // Render reviews
 function renderReviews(reviews) {
   const reviewsGrid = document.getElementById('reviewsGrid');
-  
-  reviewsGrid.innerHTML = reviews.map(review => `
-    <div class="review-card">
-      <div class="review-header">
-        <div>
-          <h3 class="review-author">${review.author}</h3>
-          <div class="review-rating">
-            <div class="stars">
-              ${generateStars(review.rating)}
-            </div>
-            <span class="rating-value">${review.rating.toFixed(1)}</span>
+
+  if (!reviews || reviews.length === 0) {
+    reviewsGrid.innerHTML = '<p>No reviews available.</p>';
+    return;
+  }
+
+  reviewsGrid.innerHTML = reviews.map(review => {
+    const rating = review.rating ?? 0;
+    const comment = review.comment ?? review.content ?? '';
+    const date = review.date ?? review.created_at ?? new Date().toISOString();
+
+    return `
+      <div class="review-card">
+        <div class="review-header">
+          <div>
+            <h3 class="review-author">${review.author}</h3>
+            ${
+              rating > 0
+                ? `<div class="review-rating">
+                     <div class="stars">${generateStars(rating)}</div>
+                     <span class="rating-value">${rating.toFixed(1)}</span>
+                   </div>`
+                : ''
+            }
           </div>
+          <time class="review-date">${formatDate(date)}</time>
         </div>
-        <time class="review-date">${formatDate(review.date)}</time>
+        <p class="review-comment">${comment}</p>
       </div>
-      <p class="review-comment">${review.comment}</p>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
+
 
 // Show error message
 function showError() {
@@ -165,13 +181,26 @@ async function init() {
   }
 
   try {
+    // CORE DATA (must succeed)
     const movie = await fetchMovieDetails(movieId);
     const cast = await fetchMovieCast(movieId);
     const trailer = await fetchMovieTrailer(movieId);
 
+    // OPTIONAL DATA (may fail)
+    let tmdbReviews = [];
+    try {
+      tmdbReviews = await fetchMovieReviews(movieId);
+    } catch (reviewError) {
+      console.warn("TMDB reviews not available");
+    }
+    window.tmdbReviews = tmdbReviews;
+
+    const localReviews = getLocalReviews(movieId);
+    const combinedReviews = mergeReviews(localReviews, tmdbReviews);
+
     const formattedMovie = {
       title: movie.title,
-      year: movie.release_date.split("-")[0],
+      year: movie.release_date?.split("-")[0],
       runtime: movie.runtime,
       director: "TMDB",
       rating: movie.vote_average / 2,
@@ -185,12 +214,20 @@ async function init() {
         : ""
     };
 
+    // RENDER CORE UI
     renderMovieDetail(formattedMovie);
-    renderReviews([]); // optional: static reviews
+
+    // RENDER REVIEWS
+    renderReviews(combinedReviews);
+    setupReviewForm(movieId);
+
   } catch (error) {
+    console.error("Movie fetch failed", error);
     showError();
   }
 }
+
+
 
 
 // Initialize when DOM is ready
@@ -199,3 +236,57 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+//review submission handling
+function setupReviewForm(movieId) {
+  const btn = document.getElementById("submitReview");
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    const author = document.getElementById("reviewAuthor").value.trim();
+    const comment = document.getElementById("reviewComment").value.trim();
+
+    if (!author || !comment) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    const review = {
+      author,
+      content: comment,
+      date: new Date().toISOString(),
+      source: "local"
+    };
+
+    saveLocalReview(movieId, review);
+
+    const allReviews = mergeReviews(
+      getLocalReviews(movieId),
+      window.tmdbReviews || []
+    );
+
+    renderReviews(allReviews);
+
+    document.getElementById("reviewAuthor").value = "";
+    document.getElementById("reviewComment").value = "";
+  });
+}
+
+
+
+function getLocalReviews(movieId) {
+  const stored = localStorage.getItem(`reviews_${movieId}`);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function saveLocalReview(movieId, review) {
+  const reviews = getLocalReviews(movieId);
+  reviews.unshift(review); // newest on top
+  localStorage.setItem(`reviews_${movieId}`, JSON.stringify(reviews));
+}
+
+
+function mergeReviews(local, tmdb) {
+  return [...local, ...tmdb];
+}
+

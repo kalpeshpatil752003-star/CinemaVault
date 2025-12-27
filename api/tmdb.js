@@ -21,6 +21,20 @@ export async function fetchGenres() {
   return data.genres; // [{id, name}]
 }
 
+// Fetch TMDB reviews
+export async function fetchMovieReviews(movieId) {
+  const response = await fetch(
+    `${BASE_URL}/movie/${movieId}/reviews?api_key=${TMDB_API_KEY}&language=en-US&page=1`
+  );
+  const data = await response.json();
+
+  return data.results.map(review => ({
+    author: review.author,
+    content: review.content,
+    date: review.created_at,
+    source: "tmdb"
+  }));
+}
 
 
 

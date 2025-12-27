@@ -45,13 +45,22 @@
 
   <!-- Reviews Section -->
   <section class="reviews-section">
-    <div class="reviews-container">
-      <h2 class="section-title">User Reviews</h2>
-      <div class="reviews-grid" id="reviewsGrid">
-        <!-- Reviews will be dynamically inserted here -->
-      </div>
+  <div class="reviews-container">
+    <h2 class="section-title">User Reviews</h2>
+
+    <div class="review-form">
+      <h3>Add Your Review</h3>
+      <input type="text" id="reviewAuthor" placeholder="Your Name" />
+      <textarea id="reviewComment" placeholder="Write your review"></textarea>
+      <button id="submitReview" class="btn">Submit Review</button>
     </div>
-  </section>
+
+    <div class="reviews-grid" id="reviewsGrid">
+      <!-- Reviews inserted here -->
+    </div>
+  </div>
+</section>
+
 
   <!-- Footer -->
   <footer class="footer">
