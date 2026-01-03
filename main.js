@@ -228,6 +228,25 @@ function attachEventListeners() {
         }
     });
     clearFiltersBtn.addEventListener('click', clearFilters);
+
+
+
+    // Mobile hamburger menu toggle
+const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const nav = document.querySelector('.nav');
+
+if (mobileMenuBtn && nav) {
+  mobileMenuBtn.addEventListener('click', () => {
+    nav.classList.toggle('open');
+  });
+}
+nav.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    nav.classList.remove('open');
+  });
+});
+
+
 }
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

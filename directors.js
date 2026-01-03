@@ -175,6 +175,23 @@ function init() {
   renderDirectors();
   attachEventListeners();
 }
+// Mobile hamburger menu toggle
+const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const nav = document.querySelector('.nav');
+
+if (mobileMenuBtn && nav) {
+  mobileMenuBtn.addEventListener('click', () => {
+    nav.classList.toggle('open');
+  });
+
+  // Close menu after clicking a link (mobile UX)
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+    });
+  });
+}
+
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
