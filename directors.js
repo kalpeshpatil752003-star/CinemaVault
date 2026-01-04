@@ -1,64 +1,40 @@
-// JavaScript file for directors page functionality
-import { movies } from './data.js';
+// JavaScript file for Directors page (TMDB-based, stable version)
 
-// State management
+import {
+  fetchPopularMovies,
+  fetchMovieCredits,
+  IMAGE_BASE_URL
+} from './api/tmdb.js';
+
+// =======================
+// State
+// =======================
+let directorsData = [];
 let currentSearchQuery = '';
 
-// DOM elements
+// =======================
+// DOM Elements
+// =======================
 const searchInput = document.getElementById('searchInput');
 const directorsList = document.getElementById('directorsList');
 const directorsCount = document.getElementById('directorsCount');
 const noResults = document.getElementById('noResults');
 const clearSearchBtn = document.getElementById('clearSearch');
 
-// Get all directors with their movies
-function getDirectors() {
-  const directorsMap = new Map();
-
-  // Group movies by director
-  movies.forEach(movie => {
-    if (!directorsMap.has(movie.director)) {
-      directorsMap.set(movie.director, []);
-    }
-    directorsMap.get(movie.director).push(movie);
-  });
-
-  // Convert to Director objects with statistics
-  const directors = [];
-  directorsMap.forEach((directorMovies, directorName) => {
-    const totalMovies = directorMovies.length;
-    const averageRating =
-      directorMovies.reduce((sum, m) => sum + m.rating, 0) / totalMovies;
-    const totalReviews =
-      directorMovies.reduce((sum, m) => sum + m.reviewCount, 0);
-
-    directors.push({
-      name: directorName,
-      movies: directorMovies.sort((a, b) => b.rating - a.rating),
-      totalMovies,
-      averageRating,
-      totalReviews
-    });
-  });
-
-  // Sort directors by average rating
-  return directors.sort((a, b) => b.averageRating - a.averageRating);
-}
-
-// Filter directors by search query
+// =======================
+// Filtering Logic
+// =======================
 function getFilteredDirectors() {
-  const allDirectors = getDirectors();
+  if (!currentSearchQuery) return directorsData;
 
-  if (!currentSearchQuery) {
-    return allDirectors;
-  }
-
-  return allDirectors.filter(director =>
-    director.name.toLowerCase().includes(currentSearchQuery.toLowerCase())
+  return directorsData.filter(d =>
+    d.name.toLowerCase().includes(currentSearchQuery.toLowerCase())
   );
 }
 
-// Create director movie card HTML
+// =======================
+// UI Builders
+// =======================
 function createDirectorMovieCard(movie) {
   return `
     <div class="director-movie-card" data-movie-id="${movie.id}">
@@ -79,7 +55,6 @@ function createDirectorMovieCard(movie) {
   `;
 }
 
-// Create director card HTML
 function createDirectorCard(director) {
   return `
     <div class="director-card">
@@ -112,14 +87,83 @@ function createDirectorCard(director) {
           </div>
         </div>
       </div>
+
       <div class="director-movies">
-        ${director.movies.map(movie => createDirectorMovieCard(movie)).join('')}
+        ${director.movies.map(createDirectorMovieCard).join('')}
       </div>
     </div>
   `;
 }
 
-// Render directors
+// =======================
+// Data Fetching (TMDB)
+// =======================
+async function fetchDirectorsFromTMDB() {
+  // Limit movies to avoid TMDB rate limits
+  const movies = (await fetchPopularMovies(4)).slice(0, 15);
+  const directorsMap = new Map();
+
+  for (const movie of movies) {
+    try {
+      const credits = await fetchMovieCredits(movie.id);
+
+      // Director detection with fallback
+      const director =
+        credits.crew.find(p => p.job === 'Director') ||
+        credits.crew.find(p => p.department === 'Directing');
+
+      if (!director) {
+        console.warn('No director found for:', movie.title);
+        continue;
+      }
+
+      if (!directorsMap.has(director.name)) {
+        directorsMap.set(director.name, {
+          name: director.name,
+          movies: [],
+          totalMovies: 0,
+          averageRating: 0,
+          totalReviews: 0
+        });
+      }
+
+      const d = directorsMap.get(director.name);
+
+      d.movies.push({
+        id: movie.id,
+        title: movie.title,
+        year: movie.release_date
+          ? new Date(movie.release_date).getFullYear()
+          : 'N/A',
+        rating: movie.vote_average / 2,
+        reviewCount: movie.vote_count,
+        poster: movie.poster_path
+          ? IMAGE_BASE_URL + movie.poster_path
+          : ''
+      });
+
+    } catch (err) {
+      console.warn('Credits failed for:', movie.title);
+    }
+  }
+
+  // Compute stats
+  directorsData = Array.from(directorsMap.values()).map(d => {
+    d.totalMovies = d.movies.length;
+    d.averageRating =
+      d.movies.reduce((s, m) => s + m.rating, 0) / d.totalMovies;
+    d.totalReviews =
+      d.movies.reduce((s, m) => s + m.reviewCount, 0);
+    d.movies.sort((a, b) => b.rating - a.rating);
+    return d;
+  });
+
+  directorsData.sort((a, b) => b.averageRating - a.averageRating);
+}
+
+// =======================
+// Rendering
+// =======================
 function renderDirectors() {
   const filteredDirectors = getFilteredDirectors();
 
@@ -127,41 +171,42 @@ function renderDirectors() {
     directorsList.style.display = 'none';
     noResults.style.display = 'block';
     directorsCount.textContent = 'No directors found';
-  } else {
-    directorsList.style.display = 'flex';
-    noResults.style.display = 'none';
-    directorsCount.textContent = `Showing ${filteredDirectors.length} ${
-      filteredDirectors.length === 1 ? 'director' : 'directors'
-    }`;
-
-    directorsList.innerHTML = filteredDirectors
-      .map(director => createDirectorCard(director))
-      .join('');
-
-    // Add click listeners to movie cards
-    document.querySelectorAll('.director-movie-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const movieId = card.getAttribute('data-movie-id');
-        window.location.href = `detail.html?id=${movieId}`;
-      });
-    });
+    return;
   }
+
+  directorsList.style.display = 'flex';
+  noResults.style.display = 'none';
+  directorsCount.textContent = `Showing ${filteredDirectors.length} ${
+    filteredDirectors.length === 1 ? 'director' : 'directors'
+  }`;
+
+  directorsList.innerHTML = filteredDirectors
+    .map(createDirectorCard)
+    .join('');
+
+  // Movie card click → detail page
+  document.querySelectorAll('.director-movie-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const movieId = card.getAttribute('data-movie-id');
+      window.location.href = `detail.html?id=${movieId}`;
+    });
+  });
 }
 
-// Handle search input
+// =======================
+// Events
+// =======================
 function handleSearch(query) {
   currentSearchQuery = query;
   renderDirectors();
 }
 
-// Clear search
 function clearSearch() {
   currentSearchQuery = '';
   searchInput.value = '';
   renderDirectors();
 }
 
-// Attach event listeners
 function attachEventListeners() {
   searchInput.addEventListener('input', e => {
     handleSearch(e.target.value);
@@ -170,12 +215,24 @@ function attachEventListeners() {
   clearSearchBtn.addEventListener('click', clearSearch);
 }
 
-// Initialize the page
-function init() {
-  renderDirectors();
-  attachEventListeners();
+// =======================
+// Init
+// =======================
+async function init() {
+  try {
+    directorsCount.textContent = 'Loading directors...';
+    await fetchDirectorsFromTMDB();
+    renderDirectors();
+    attachEventListeners();
+  } catch (err) {
+    directorsCount.textContent = 'Failed to load directors';
+    console.error(err);
+  }
 }
-// Mobile hamburger menu toggle
+
+// =======================
+// Mobile Hamburger Menu
+// =======================
 const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
 const nav = document.querySelector('.nav');
 
@@ -184,7 +241,6 @@ if (mobileMenuBtn && nav) {
     nav.classList.toggle('open');
   });
 
-  // Close menu after clicking a link (mobile UX)
   nav.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       nav.classList.remove('open');
@@ -192,10 +248,12 @@ if (mobileMenuBtn && nav) {
   });
 }
 
-
-// Initialize when DOM is ready
+// =======================
+// DOM Ready
+// =======================
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
 }
+

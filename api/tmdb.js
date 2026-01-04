@@ -1,32 +1,51 @@
+// TMDB API utility module
+// NOTE: API key handling intentionally left unchanged
+
 const TMDB_API_KEY = "f7919dfdb6ddf2bf5528aec022db0db9";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-//search movies by query
+// =======================
+// Internal helper
+// =======================
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`TMDB request failed: ${response.status}`);
+  }
+  return response.json();
+}
+
+// =======================
+// Search movies by query
+// =======================
 export async function searchMovies(query) {
-  const response = await fetch(
-    `${BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${encodeURIComponent(query)}`
+  const data = await fetchJson(
+    `${BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${encodeURIComponent(
+      query
+    )}`
   );
-  const data = await response.json();
   return data.results;
 }
 
-//genre function
+// =======================
+// Fetch genres
+// =======================
 export async function fetchGenres() {
-  const response = await fetch(
+  const data = await fetchJson(
     `${BASE_URL}/genre/movie/list?api_key=${TMDB_API_KEY}&language=en-US`
   );
-  const data = await response.json();
-  return data.genres; // [{id, name}]
+  return data.genres; // [{ id, name }]
 }
 
+// =======================
 // Fetch TMDB reviews
+// =======================
 export async function fetchMovieReviews(movieId) {
-  const response = await fetch(
+  const data = await fetchJson(
     `${BASE_URL}/movie/${movieId}/reviews?api_key=${TMDB_API_KEY}&language=en-US&page=1`
   );
-  const data = await response.json();
 
   return data.results.map(review => ({
     author: review.author,
@@ -36,51 +55,62 @@ export async function fetchMovieReviews(movieId) {
   }));
 }
 
-
-
+// =======================
 // Fetch popular movies
+// =======================
 export async function fetchPopularMovies(pages = 3) {
   let allMovies = [];
 
   for (let page = 1; page <= pages; page++) {
-    const response = await fetch(
+    const data = await fetchJson(
       `${BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`
     );
-    const data = await response.json();
     allMovies = allMovies.concat(data.results);
   }
 
   return allMovies;
 }
 
-
+// =======================
 // Fetch movie details
+// =======================
 export async function fetchMovieDetails(movieId) {
-  const response = await fetch(
+  return fetchJson(
     `${BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`
   );
-  return response.json();
 }
 
-
-// Fetch movie cast
+// =======================
+// Fetch movie cast only
+// (kept for backward compatibility)
+// =======================
 export async function fetchMovieCast(movieId) {
-  const response = await fetch(
+  const data = await fetchJson(
     `${BASE_URL}/movie/${movieId}/credits?api_key=${TMDB_API_KEY}`
   );
-  const data = await response.json();
   return data.cast;
 }
 
-
+// =======================
 // Fetch movie trailer
+// =======================
 export async function fetchMovieTrailer(movieId) {
-  const response = await fetch(
+  const data = await fetchJson(
     `${BASE_URL}/movie/${movieId}/videos?api_key=${TMDB_API_KEY}`
   );
-  const data = await response.json();
   return data.results.find(v => v.type === "Trailer");
 }
 
+// =======================
+// Fetch full movie credits (cast + crew)
+// =======================
+export async function fetchMovieCredits(movieId) {
+  return fetchJson(
+    `${BASE_URL}/movie/${movieId}/credits?api_key=${TMDB_API_KEY}`
+  );
+}
 
+// =======================
+// Exports
+// =======================
 export { IMAGE_BASE_URL };
