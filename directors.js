@@ -25,12 +25,21 @@ const clearSearchBtn = document.getElementById('clearSearch');
 // Filtering Logic
 // =======================
 function getFilteredDirectors() {
-  if (!currentSearchQuery) return directorsData;
+  const query = currentSearchQuery
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+
+  if (!query) return directorsData;
 
   return directorsData.filter(d =>
-    d.name.toLowerCase().includes(currentSearchQuery.toLowerCase())
+    d.name
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .includes(query)
   );
 }
+
 
 // =======================
 // UI Builders
@@ -100,7 +109,7 @@ function createDirectorCard(director) {
 // =======================
 async function fetchDirectorsFromTMDB() {
   // Limit movies to avoid TMDB rate limits
-  const movies = (await fetchPopularMovies(4)).slice(0, 15);
+  const movies = await fetchPopularMovies(4);
   const directorsMap = new Map();
 
   for (const movie of movies) {
