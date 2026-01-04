@@ -22,6 +22,16 @@ const noResults = document.getElementById('noResults');
 const clearFiltersBtn = document.getElementById('clearFilters');
 let movies = [];
 
+function normalizeText(text = '') {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+
+
+
 async function init() {
   try {
     const apiMovies = await fetchPopularMovies(3);
@@ -104,9 +114,14 @@ function createMovieCard(movie) {
 }
 function getFilteredAndSortedMovies() {
     let result = [...movies];
-    if (currentSearchQuery) {
-        result = result.filter(movie => movie.title.toLowerCase().includes(currentSearchQuery.toLowerCase()));
+    const query = normalizeText(currentSearchQuery);
+
+    if (query) {
+      result = result.filter(movie =>
+        normalizeText(movie.title).includes(query)
+      );
     }
+
     if (!selectedGenres.includes('All')) {
         result = result.filter(movie => movie.genres.some(genre => selectedGenres.includes(genre)));
     }
