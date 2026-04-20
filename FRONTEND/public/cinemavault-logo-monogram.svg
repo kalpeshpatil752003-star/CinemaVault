@@ -1,0 +1,51 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        .logo-bg { fill: #0a0e14; }
+        .logo-stroke { stroke: #00d4ff; }
+        .logo-accent { stroke: #ffffff; }
+        .logo-text { fill: #00d4ff; }
+      }
+      @media (prefers-color-scheme: light) {
+        .logo-bg { fill: #f8f9fa; }
+        .logo-stroke { stroke: #0066cc; }
+        .logo-accent { stroke: #333333; }
+        .logo-text { fill: #0066cc; }
+      }
+    </style>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="128" class="logo-bg"/>
+  
+  <!-- Outer circle -->
+  <circle cx="128" cy="128" r="110" fill="none" class="logo-stroke" stroke-width="2.5"/>
+  
+  <!-- Globe circle -->
+  <circle cx="128" cy="128" r="65" fill="none" class="logo-accent" stroke-width="2.5"/>
+  
+  <!-- Latitude lines -->
+  <line x1="63" y1="110" x2="193" y2="110" class="logo-accent" stroke-width="1.5" opacity="0.8"/>
+  <line x1="63" y1="128" x2="193" y2="128" class="logo-accent" stroke-width="2" opacity="0.9"/>
+  <line x1="63" y1="146" x2="193" y2="146" class="logo-accent" stroke-width="1.5" opacity="0.8"/>
+  
+  <!-- Longitude lines -->
+  <path d="M 128 63 Q 120 128 128 193" fill="none" class="logo-accent" stroke-width="1.5" opacity="0.8"/>
+  <path d="M 128 63 Q 136 128 128 193" fill="none" class="logo-accent" stroke-width="1.5" opacity="0.8"/>
+  
+  <!-- Film frame square -->
+  <rect x="58" y="58" width="140" height="140" fill="none" class="logo-stroke" stroke-width="2.5" rx="4"/>
+  
+  <!-- Film frame corner marks (sprocket holes) -->
+  <circle cx="58" cy="58" r="5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  <circle cx="198" cy="58" r="5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  <circle cx="58" cy="198" r="5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  <circle cx="198" cy="198" r="5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  
+  <!-- Center accent -->
+  <circle cx="128" cy="128" r="3.5" class="logo-text" fill="currentColor" opacity="0.7"/>
+  
+  <!-- CV Text (bottom) -->
+  <text x="128" y="220" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" class="logo-text" letter-spacing="1">CV</text>
+</svg>

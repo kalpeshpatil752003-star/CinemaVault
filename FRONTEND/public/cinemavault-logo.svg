@@ -1,0 +1,40 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        .logo-stroke { stroke: #00d4ff; }
+        .logo-accent { stroke: #ffffff; }
+        .logo-dot { fill: #00d4ff; }
+      }
+      @media (prefers-color-scheme: light) {
+        .logo-stroke { stroke: #0066cc; }
+        .logo-accent { stroke: #333333; }
+        .logo-dot { fill: #0066cc; }
+      }
+    </style>
+  </defs>
+  
+  <!-- Globe circle -->
+  <circle cx="100" cy="100" r="50" fill="none" class="logo-stroke" stroke-width="2.5"/>
+  
+  <!-- Latitude lines -->
+  <line x1="50" y1="85" x2="150" y2="85" class="logo-accent" stroke-width="1.2" opacity="0.7"/>
+  <line x1="50" y1="100" x2="150" y2="100" class="logo-accent" stroke-width="1.5" opacity="0.8"/>
+  <line x1="50" y1="115" x2="150" y2="115" class="logo-accent" stroke-width="1.2" opacity="0.7"/>
+  
+  <!-- Longitude lines (curved) -->
+  <path d="M 100 50 Q 95 100 100 150" fill="none" class="logo-accent" stroke-width="1.2" opacity="0.7"/>
+  <path d="M 100 50 Q 105 100 100 150" fill="none" class="logo-accent" stroke-width="1.2" opacity="0.7"/>
+  
+  <!-- Film frame (square around globe) -->
+  <rect x="45" y="45" width="110" height="110" fill="none" class="logo-stroke" stroke-width="2.5" rx="3"/>
+  
+  <!-- Film frame corner marks (sprocket holes) -->
+  <circle cx="45" cy="45" r="3.5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  <circle cx="155" cy="45" r="3.5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  <circle cx="45" cy="155" r="3.5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  <circle cx="155" cy="155" r="3.5" fill="none" class="logo-accent" stroke-width="1.5"/>
+  
+  <!-- Center accent dot -->
+  <circle cx="100" cy="100" r="2.5" class="logo-dot" opacity="0.7"/>
+</svg>
