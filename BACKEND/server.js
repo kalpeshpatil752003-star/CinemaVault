@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 import prisma from "./lib/prisma.js";
 
 // Import routes
@@ -11,6 +13,14 @@ import reviewRoutes from "./routes/reviews.js";
 import preferencesRoutes from "./routes/preferences.js";
 
 dotenv.config();
+
+// ═══════════════════════════════════════════════════════════════
+// ENV VALIDATION
+// ═══════════════════════════════════════════════════════════════
+
+if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required");
+if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is required");
+if (!process.env.PORT) throw new Error("PORT is required");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,11 +37,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  next();
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
 });
+app.use(limiter);
+
+// Request logging middleware
+app.use(morgan("dev"));
 
 // ═══════════════════════════════════════════════════════════════
 // HEALTH CHECK
@@ -39,8 +53,7 @@ app.use((req, res, next) => {
 
 app.get("/health", (req, res) => {
   res.json({ 
-    status: "✅ Backend is running",
-    timestamp: new Date().toISOString(),
+    status: "OK"
   });
 });
 

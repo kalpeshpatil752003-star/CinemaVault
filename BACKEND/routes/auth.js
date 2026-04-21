@@ -1,7 +1,23 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import { z } from "zod";
 import { generateToken, hashPassword, comparePassword } from "../middleware/auth.js";
 import prisma from "../lib/prisma.js";
+
+const registerSchema = z.object({
+  name: z.string().min(1, "Name must not be empty"),
+  email: z.string().email("Email must be valid"),
+  password: z.string().min(6, "Password must be minimum 6 characters"),
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Email must be valid"),
+  password: z.string().min(6, "Password must be minimum 6 characters")
+});
 
 const router = express.Router();
 
@@ -11,27 +27,15 @@ const router = express.Router();
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, confirmPassword } = req.body;
-
-    // Validation
-    if (!name || !email || !password) {
+    const parseResult = registerSchema.safeParse(req.body);
+    if (!parseResult.success) {
       return res.status(400).json({
-        error: "Missing required fields",
-        required: ["name", "email", "password"],
+        error: parseResult.error.errors[0].message,
+        details: parseResult.error.errors
       });
     }
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        error: "Passwords don't match",
-      });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({
-        error: "Password must be at least 6 characters",
-      });
-    }
+    const { name, email, password } = parseResult.data;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -93,14 +97,15 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // Validation
-    if (!email || !password) {
+    const parseResult = loginSchema.safeParse(req.body);
+    if (!parseResult.success) {
       return res.status(400).json({
-        error: "Email and password required",
+        error: parseResult.error.errors[0].message,
+        details: parseResult.error.errors
       });
     }
+
+    const { email, password } = parseResult.data;
 
     // Find user
     const user = await prisma.user.findUnique({
