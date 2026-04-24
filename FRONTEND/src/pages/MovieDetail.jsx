@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import {
@@ -35,7 +35,6 @@ function MovieDetail() {
   const [trailer, setTrailer] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
 
-  const [author, setAuthor] = useState("");
   const [comment, setComment] = useState("");
 
   useEffect(() => {
@@ -75,21 +74,21 @@ function MovieDetail() {
       setIsSaved(list.some(m => m.id === movieData.id));
       setMovie(movieData);
       setCast(credits.cast.slice(0, 6));
-      setReviews(reviewData);
+      setReviews(reviewData ? reviewData.slice(0, 5) : []);
       setTrailer(trailerData);
-      setUserReviews(dbReviews.reviews || []);
+      setUserReviews(dbReviews?.reviews || []);
     } catch (err) {
       console.error(err);
     }
   }
 
   async function handleSubmitReview() {
-    if (!author.trim() || !comment.trim()) {
-      alert("Please fill all fields");
+    if (!comment.trim()) {
+      alert("Please write a review before submitting.");
       return;
     }
 
-    if (!token || !movie) {
+    if (!token || !movie || !user) {
       alert("Please login to post a review");
       return;
     }
@@ -98,13 +97,12 @@ function MovieDetail() {
       const response = await createReview(token, {
         tmdbMovieId: movie.id,
         movieTitle: movie.title || movie.name || "Untitled",
-        author,
+        author: user.name,
         content: comment,
         rating: 5,
       });
 
       setUserReviews(prev => [response.review, ...prev]);
-      setAuthor("");
       setComment("");
     } catch (error) {
       console.error("Failed to post review:", error);
@@ -237,26 +235,54 @@ function MovieDetail() {
         <div className="reviews-container">
           <h2 className="section-title">User Reviews</h2>
 
-          <div className="review-form">
-            <h3>Add Your Review</h3>
+          {user ? (
+            <div className="review-form" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '16px',
+              padding: '1.5rem',
+              marginBottom: '2rem',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <h3 style={{ marginBottom: '1rem', color: 'var(--color-primary)' }}>Add Your Review as {user.name}</h3>
 
-            <input
-              type="text"
-              placeholder="Your Name"
-              value={author}
-              onChange={e => setAuthor(e.target.value)}
-            />
+              <textarea
+                className="input"
+                style={{ 
+                  width: '100%', 
+                  minHeight: '120px', 
+                  padding: '1rem', 
+                  background: 'rgba(0, 0, 0, 0.2)', 
+                  border: '1px solid rgba(255, 255, 255, 0.1)', 
+                  borderRadius: '12px', 
+                  color: '#fff', 
+                  fontSize: '1rem', 
+                  resize: 'vertical',
+                  marginBottom: '1rem'
+                }}
+                placeholder="What did you think?"
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+              />
 
-            <textarea
-              placeholder="Write your review"
-              value={comment}
-              onChange={e => setComment(e.target.value)}
-            />
-
-            <button className="btn" onClick={handleSubmitReview}>
-              Submit Review
-            </button>
-          </div>
+              <button className="btn" onClick={handleSubmitReview}>
+                Submit Review
+              </button>
+            </div>
+          ) : (
+            <div className="review-form" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '16px',
+              padding: '2rem',
+              marginBottom: '2rem',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <p style={{ marginBottom: '1rem', fontSize: '1.1rem', color: 'var(--color-text-dim)' }}>Please log in to add your review.</p>
+              <Link to="/login" className="btn">Log In</Link>
+            </div>
+          )}
 
           <div className="reviews-grid">
             {allReviews.length === 0 ? (

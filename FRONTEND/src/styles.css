@@ -255,6 +255,21 @@ button {
 
 /* Auth / Login / Register Pages */
 .auth-page {
+  /* Force Default Theme Variables for Auth Pages */
+  --xp-bg: #1a1a1a;
+  --xp-fg: #ffffff;
+  --xp-accent: #00d4ff;
+  --xp-font-display: 'Inter', sans-serif;
+  --xp-font-body: 'Inter', sans-serif;
+  --xp-filter: none;
+
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: rgba(255, 255, 255, 0.06);
+  --color-accent: #00d4ff;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-border: rgba(255, 255, 255, 0.12);
+
   --auth-accent: #00d4ff;
   --auth-text-primary: #ffffff;
   --auth-text-secondary: rgba(255, 255, 255, 0.7);
@@ -397,6 +412,15 @@ button {
   outline: none;
   border-color: var(--auth-accent);
   box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.12);
+}
+
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover, 
+.auth-input:-webkit-autofill:focus, 
+.auth-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(10, 10, 10, 1) inset !important;
+  -webkit-text-fill-color: var(--auth-text-primary) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .auth-input--error {

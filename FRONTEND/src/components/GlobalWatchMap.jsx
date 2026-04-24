@@ -8,48 +8,14 @@ import {
   fetchMovieDetailsWithCredits,
   IMAGE_BASE_URL
 } from "../api/tmdb";
+import { fetchMultipleMovies } from "../api/movies";
 
 const IMAGE_BASE = IMAGE_BASE_URL;
 const IMAGE_BASE_LARGE = "https://image.tmdb.org/t/p/w500";
 const TMDB_KEY = "f7919dfdb6ddf2bf5528aec022db0db9";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
-// Expanded to 50+ countries
 
-const COUNTRY_LANGUAGE_MAP = {
-  "US": "en", "GB": "en", "CA": "en", "AU": "en", "NZ": "en", "IE": "en",
-  "JP": "ja",
-  "KR": "ko",
-  "IN": "hi",
-  "FR": "fr", "BE": "fr",
-  "DE": "de", "AT": "de", "CH": "de",
-  "ES": "es", "MX": "es", "AR": "es", "CL": "es", "CO": "es",
-  "BR": "pt", "PT": "pt",
-  "IT": "it",
-  "NL": "nl",
-  "PL": "pl",
-  "SE": "sv",
-  "NO": "nb",
-  "DK": "da",
-  "FI": "fi",
-  "RU": "ru",
-  "TR": "tr",
-  "TH": "th",
-  "ID": "id",
-  "VN": "vi",
-  "PH": "tl",
-  "MY": "ms",
-  "CN": "zh", "TW": "zh", "HK": "zh",
-  "SG": "en",
-  "NG": "en",
-  "ZA": "en",
-  "EG": "ar", "SA": "ar", "AE": "ar",
-  "IL": "he",
-  "GR": "el",
-  "HU": "hu",
-  "RO": "ro",
-  "CZ": "cs",
-};
 
 const SUPPORTED = {
   "United States of America": { code: "US", flag: "🇺🇸", color: "#e8c97a", region: "Americas" },
@@ -179,49 +145,7 @@ function neonColor(hex, intensity = 0) {
   return `rgba(${brighten(r)}, ${brighten(g)}, ${brighten(b)}, ${alpha})`;
 }
 
-// Fetch multiple movies for carousel
-async function fetchMultipleMovies(code, type) {
-  const lang = COUNTRY_LANGUAGE_MAP[code] || "en";
 
-  try {
-    let url;
-
-    if (type === "trending") {
-      url = `${TMDB_BASE}/trending/movie/week?api_key=${TMDB_KEY}&region=${code}`;
-
-    } else if (type === "local") {
-      url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_KEY}`
-          + `&with_original_language=${lang}`
-          + `&sort_by=popularity.desc`
-          + `&vote_count.gte=100`
-          + `&page=1`;
-
-    } else if (type === "toprated") {
-      url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_KEY}`
-          + `&with_original_language=${lang}`
-          + `&sort_by=vote_average.desc`
-          + `&vote_count.gte=500`
-          + `&page=1`;
-    }
-
-    // For English countries on local filter, use region instead
-    // otherwise every English country shows same Hollywood films
-    if (type === "local" && lang === "en" && code !== "US") {
-      const res = await fetch(
-        `${TMDB_BASE}/movie/popular?api_key=${TMDB_KEY}&region=${code}&page=1`
-      );
-      const data = await res.json();
-      return data.results?.slice(0, 5) || [];
-    }
-
-    const res  = await fetch(url);
-    const data = await res.json();
-    return data.results?.slice(0, 5) || [];
-
-  } catch {
-    return [];
-  }
-}
 
 async function fetchFullMovieDetails(movieId) {
   try {

@@ -22,6 +22,8 @@ function Home() {
   const [selectedGenres, setSelectedGenres] = useState(["All"]);
   const [selectedMediaType, setSelectedMediaType] = useState("all");
   const [sortBy, setSortBy] = useState("rating");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   function dedupeMediaItems(items) {
     const seen = new Set();
@@ -116,37 +118,45 @@ function Home() {
   }, []);
 
   async function loadInitialData() {
-    const pages = await Promise.all([
-      fetchPopularMovies(1),
-      fetchPopularMovies(2),
-      fetchPopularMovies(3),
-      fetchShows(1),
-      fetchShows(2),
-      fetchShows(3)
-    ]);
+    setLoading(true);
+    setError(null);
+    try {
+      const pages = await Promise.all([
+        fetchPopularMovies(1),
+        fetchPopularMovies(2),
+        fetchPopularMovies(3),
+        fetchShows(1),
+        fetchShows(2),
+        fetchShows(3)
+      ]);
 
-    const apiMedia = dedupeMediaItems(pages.flat());
+      const apiMedia = dedupeMediaItems(pages.flat());
 
-    const [movieGenres, showGenres] = await Promise.all([
-      fetchGenres(),
-      fetchShowGenres()
-    ]);
-    const allGenres = [...movieGenres, ...showGenres];
-    const uniqueGenres = Array.from(
-      new Map(allGenres.map(genre => [genre.id, genre])).values()
-    );
+      const [movieGenres, showGenres] = await Promise.all([
+        fetchGenres(),
+        fetchShowGenres()
+      ]);
+      const allGenres = [...movieGenres, ...showGenres];
+      const uniqueGenres = Array.from(
+        new Map(allGenres.map(genre => [genre.id, genre])).values()
+      );
 
-    setGenres(["All", ...uniqueGenres.map(g => g.name)]);
+      setGenres(["All", ...uniqueGenres.map(g => g.name)]);
 
-    const map = {};
-    uniqueGenres.forEach(g => {
-      map[g.id] = g.name;
-    });
-    setGenreMap(map);
+      const map = {};
+      uniqueGenres.forEach(g => {
+        map[g.id] = g.name;
+      });
+      setGenreMap(map);
 
-    const mapped = mapMediaItems(apiMedia, map);
+      const mapped = mapMediaItems(apiMedia, map);
 
-    setMovies(mapped);
+      setMovies(mapped);
+    } catch (err) {
+      setError("Failed to load trending movies and shows.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleSearch(e) {
@@ -158,17 +168,25 @@ function Home() {
       return;
     }
 
-    const [movieResults, showResults] = await Promise.all([
-      searchMovies(value),
-      searchShows(value)
-    ]);
+    setLoading(true);
+    setError(null);
+    try {
+      const [movieResults, showResults] = await Promise.all([
+        searchMovies(value),
+        searchShows(value)
+      ]);
 
-    const mergedResults = dedupeMediaItems([
-      ...movieResults,
-      ...showResults
-    ]);
+      const mergedResults = dedupeMediaItems([
+        ...movieResults,
+        ...showResults
+      ]);
 
-    setMovies(mapMediaItems(mergedResults, genreMap));
+      setMovies(mapMediaItems(mergedResults, genreMap));
+    } catch (err) {
+      setError("Failed to search. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleGenreClick(genre) {
@@ -357,14 +375,25 @@ function Home() {
             </p>
           </div>
 
-          <div className="movies-grid">
-            {filteredMovies.map(movie => (
-              <MovieCard
-                key={`${movie.media_type}-${movie.id}`}
-                movie={movie}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="loading" style={{ textAlign: "center", padding: "4rem" }}>
+              <div className="spinner"></div>
+              <p style={{ marginTop: "1rem", color: "var(--color-text-dim)" }}>Loading amazing titles...</p>
+            </div>
+          ) : error ? (
+            <div className="error" style={{ textAlign: "center", padding: "4rem", color: "var(--color-error)" }}>
+              {error}
+            </div>
+          ) : (
+            <div className="movies-grid">
+              {filteredMovies.map(movie => (
+                <MovieCard
+                  key={`${movie.media_type}-${movie.id}`}
+                  movie={movie}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>

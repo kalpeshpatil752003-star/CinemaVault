@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import Header from "./components/Temp";
+import Header from "./components/Header";
 import Account from "./components/Account";
 import Home from "./pages/Home";
 import MovieDetail from "./pages/MovieDetail";

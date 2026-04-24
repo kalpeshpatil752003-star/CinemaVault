@@ -8,14 +8,19 @@ import { IMAGE_BASE_URL } from "../api/tmdb";
 function Watchlist() {
   const { user, token } = useAuth();
   const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function loadWatchlist() {
       if (!token) {
         setMovies([]);
+        setLoading(false);
         return;
       }
 
+      setLoading(true);
+      setError(null);
       try {
         const list = await getWatchlist(token);
         const preferences = user ? await getPreferences(token) : { watchlistSort: "newest" };
@@ -29,7 +34,10 @@ function Watchlist() {
         setMovies(sorted);
       } catch (error) {
         console.error("Failed to load watchlist:", error);
+        setError("Could not load your watchlist. Please try again.");
         setMovies([]);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -69,7 +77,16 @@ function Watchlist() {
           )}
         </div>
 
-        {movies.length === 0 ? (
+        {loading ? (
+          <div className="loading" style={{ textAlign: "center", padding: "4rem" }}>
+            <div className="spinner"></div>
+            <p style={{ marginTop: "1rem", color: "var(--color-text-dim)" }}>Loading your vault...</p>
+          </div>
+        ) : error ? (
+          <div className="error" style={{ textAlign: "center", padding: "4rem", color: "var(--color-error)" }}>
+            {error}
+          </div>
+        ) : movies.length === 0 ? (
           <p>No saved movies yet.</p>
         ) : (
           <div className="movies-grid">

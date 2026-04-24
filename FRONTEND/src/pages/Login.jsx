@@ -72,6 +72,17 @@ function Login() {
     }
   }
 
+  if (isSubmitting) {
+    return (
+      <main className="auth-page auth-page--login" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="loading" style={{ textAlign: "center" }}>
+          <div className="spinner"></div>
+          <h2 style={{ marginTop: "1rem" }}>Signing in...</h2>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="auth-page auth-page--login">
       <div className="auth-orb auth-orb--one" />

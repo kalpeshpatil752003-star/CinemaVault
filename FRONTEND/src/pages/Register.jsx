@@ -87,6 +87,17 @@ function Register() {
     }
   }
 
+  if (isSubmitting) {
+    return (
+      <main className="auth-page auth-page--register" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="loading" style={{ textAlign: "center" }}>
+          <div className="spinner"></div>
+          <h2 style={{ marginTop: "1rem" }}>Creating Account...</h2>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="auth-page auth-page--register">
       <div className="auth-orb auth-orb--one" />

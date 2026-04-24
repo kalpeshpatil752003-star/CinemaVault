@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IMAGE_BASE_URL } from "../api/tmdb";
 
 const IMAGE_BASE = IMAGE_BASE_URL;
-const TMDB_KEY = "f7919dfdb6ddf2bf5528aec022db0db9";
+const TMDB_KEY = import.meta.env.VITE_TMDB_KEY;
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
 // Cinema history eras with thematic data
