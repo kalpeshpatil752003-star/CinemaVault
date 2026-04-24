@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getWatchlist } from "../utils/watchlist";
 import Account from "./Account";
+import NotificationDropdown from "./NotificationDropdown";
 
 function Header() {
   const { isAuthenticated, token } = useAuth();
@@ -48,7 +49,10 @@ function Header() {
           <Link to="/watchlist">Watchlist ({count})</Link>
           <Link to="/experience">Experience</Link>
           {isAuthenticated ? (
-            <Account />
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <NotificationDropdown />
+              <Account />
+            </div>
           ) : (
             <>
               <Link to="/login">Login</Link>
@@ -75,7 +79,8 @@ function Header() {
           </Link>
           <Link to="/experience" onClick={() => setMobileMenuOpen(false)}>Experience</Link>
           {isAuthenticated ? (
-            <div className="mobile-account">
+            <div className="mobile-account" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <NotificationDropdown />
               <Account />
             </div>
           ) : (

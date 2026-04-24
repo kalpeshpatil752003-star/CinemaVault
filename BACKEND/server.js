@@ -11,6 +11,8 @@ import userRoutes from "./routes/users.js";
 import watchlistRoutes from "./routes/watchlist.js";
 import reviewRoutes from "./routes/reviews.js";
 import preferencesRoutes from "./routes/preferences.js";
+import historyRoutes from "./routes/history.js";
+import notificationRoutes from "./routes/notifications.js";
 
 dotenv.config();
 
@@ -66,6 +68,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/watchlist", watchlistRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/preferences", preferencesRoutes);
+app.use("/api/history", historyRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // ═══════════════════════════════════════════════════════════════
 // 404 HANDLER

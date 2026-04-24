@@ -33,6 +33,16 @@ router.get("/me", verifyToken, async (req, res) => {
         email: true,
         createdAt: true,
         preferences: true,
+        avatar: true,
+        bio: true,
+        favoriteGenres: true,
+        favoriteDirector: true,
+        _count: {
+          select: {
+            watchlist: true,
+            reviews: true
+          }
+        }
       },
     });
 
@@ -48,12 +58,50 @@ router.get("/me", verifyToken, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// GET /api/users/profile/:id - Get public user profile
+// ═══════════════════════════════════════════════════════════════
+
+router.get("/profile/:id", async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        bio: true,
+        favoriteGenres: true,
+        favoriteDirector: true,
+        isOnline: true,
+        lastSeen: true,
+        createdAt: true,
+        _count: {
+          select: {
+            watchlist: true,
+            reviews: true
+          }
+        }
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error("Get public profile error:", err);
+    res.status(500).json({ error: "Failed to fetch user profile" });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
 // PUT /api/users/me - Update user profile
 // ═══════════════════════════════════════════════════════════════
 
 router.put("/me", verifyToken, async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, avatar, bio, favoriteGenres, favoriteDirector } = req.body;
 
     // Validation
     if (!name || !email) {
@@ -63,7 +111,13 @@ router.put("/me", verifyToken, async (req, res) => {
     }
 
     // Check if email is already taken (if changed)
-    if (email !== req.user.email) {
+    // `req.user` might not exist in original code, usually it's fetched or req.userId is used.
+    // The previous code had `req.user.email` but in verifyToken maybe it only sets req.userId? Let's check original logic.
+    // In original: `if (email !== req.user.email) {` -> Let's keep it as is, or fetch user first.
+    // It's safer to fetch the user if we don't have req.user populated.
+    const currentUser = await prisma.user.findUnique({ where: { id: req.userId }});
+    
+    if (currentUser && email !== currentUser.email) {
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });
@@ -81,11 +135,19 @@ router.put("/me", verifyToken, async (req, res) => {
       data: {
         name,
         email,
+        avatar,
+        bio,
+        favoriteGenres,
+        favoriteDirector
       },
       select: {
         id: true,
         name: true,
         email: true,
+        avatar: true,
+        bio: true,
+        favoriteGenres: true,
+        favoriteDirector: true,
         createdAt: true,
       },
     });

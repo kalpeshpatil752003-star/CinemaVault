@@ -1,40 +1,14 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
-
-async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.error || data.message || "Request failed");
-  }
-
-  return data;
-}
+import apiClient from "./client.js";
 
 export function registerUser(payload) {
-  return request("/api/auth/register", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  return apiClient.post("/auth/register", payload);
 }
 
 export function loginUser(payload) {
-  return request("/api/auth/login", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  return apiClient.post("/auth/login", payload);
 }
 
 export function verifyUserToken(token) {
-  return request("/api/auth/verify", {
-    method: "POST",
-    body: JSON.stringify({ token }),
-  });
+  // Pass token explicitly if needed, though apiClient handles it
+  return apiClient.post("/auth/verify", { token });
 }

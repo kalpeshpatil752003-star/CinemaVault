@@ -1,34 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
-
-async function request(path, options = {}) {
-  const { headers, ...restOptions } = options;
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...restOptions,
-    headers: {
-      "Content-Type": "application/json",
-      ...(headers || {}),
-    },
-  });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.error || data.message || "Reviews request failed");
-  }
-
-  return data;
-}
+import apiClient from "./client.js";
 
 export function getMovieReviews(tmdbMovieId) {
-  return request(`/api/reviews/movie/${tmdbMovieId}`);
+  return apiClient.get(`/reviews/movie/${tmdbMovieId}`);
 }
 
 export function createReview(token, payload) {
-  return request("/api/reviews", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  return apiClient.post("/reviews", payload);
 }

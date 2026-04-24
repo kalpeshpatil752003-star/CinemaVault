@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Landing from "./pages/Landing";
 import ProfileSettings from "./pages/ProfileSettings";
+import Profile from "./pages/Profile";
 import Preferences from "./pages/Preferences";
 import WatchHistory from "./pages/WatchHistory";
 
@@ -36,27 +37,42 @@ function AuthRoute({ children }) {
   return !isAuthenticated ? children : <Navigate to="/" replace />;
 }
 
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
+
 function AppContent() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <>
-      {isAuthenticated && <Header />}
-      <Routes>
-        {/* Landing route: show combined login/register page at root when unauthenticated */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            ) : (
-              <Landing />
-            )
-          }
-        />
+    <Routes>
+      {/* Landing route */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          ) : (
+            <Landing />
+          )
+        }
+      >
+        <Route index element={<Home />} />
+        <Route path="movie/:id" element={<MovieDetail />} />
+        <Route path="show/:id" element={<MovieDetail />} />
+        <Route path="directors" element={<Directors />} />
+        <Route path="director/:id" element={<DirectorProfile />} />
+        <Route path="watchlist" element={<Watchlist />} />
+        <Route path="experience" element={<Experience />} />
+        <Route path="profile" element={<ProfileSettings />} />
+        <Route path="profile/:id" element={<Profile />} />
+        <Route path="preferences" element={<Preferences />} />
+        <Route path="history" element={<WatchHistory />} />
+      </Route>
 
+      {/* Auth routes */}
+      <Route element={<AuthLayout />}>
         <Route
           path="/login"
           element={
@@ -73,85 +89,11 @@ function AppContent() {
             </AuthRoute>
           }
         />
+      </Route>
 
-        {/* Protected routes - only for authenticated users */}
-        <Route
-          path="/movie/:id"
-          element={
-            <ProtectedRoute>
-              <MovieDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/show/:id"
-          element={
-            <ProtectedRoute>
-              <MovieDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/directors"
-          element={
-            <ProtectedRoute>
-              <Directors />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/director/:id"
-          element={
-            <ProtectedRoute>
-              <DirectorProfile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/watchlist"
-          element={
-            <ProtectedRoute>
-              <Watchlist />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/experience"
-          element={
-            <ProtectedRoute>
-              <Experience />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfileSettings />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/preferences"
-          element={
-            <ProtectedRoute>
-              <Preferences />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <ProtectedRoute>
-              <WatchHistory />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Redirect unknown routes */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
+      {/* Redirect unknown routes */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
