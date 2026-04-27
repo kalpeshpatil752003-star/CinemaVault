@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import apiClient from "../api/client";
 import { Link } from "react-router-dom";
 
+const TOKEN_STORAGE_KEY = "cinemaVault_token";
+
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -22,7 +24,7 @@ export default function NotificationDropdown() {
   }, []);
 
   const fetchNotifications = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (!token) {
       setNotifications([]);
       setUnreadCount(0);
