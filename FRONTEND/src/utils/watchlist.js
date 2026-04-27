@@ -24,7 +24,7 @@ async function request(path, token, options = {}) {
 }
 
 export async function getWatchlist(token) {
-  const data = await request("/api/watchlist", token);
+  const data = await request("/watchlist", token);
   return (data.items || []).map(item => ({
     id: item.tmdbMovieId,
     title: item.title,
@@ -37,7 +37,7 @@ export async function getWatchlist(token) {
 }
 
 export async function clearWatchlist(token) {
-  await request("/api/watchlist", token, {
+  await request("/watchlist", token, {
     method: "DELETE",
   });
 
@@ -50,11 +50,11 @@ export async function toggleWatchlist(movie, token) {
   const exists = list.find(m => m.id === movie.id);
 
   if (exists) {
-    await request(`/api/watchlist/${movie.id}`, token, {
+    await request(`/watchlist/${movie.id}`, token, {
       method: "DELETE",
     });
   } else {
-    await request("/api/watchlist", token, {
+    await request("/watchlist", token, {
       method: "POST",
       body: JSON.stringify({
         tmdbMovieId: movie.id,

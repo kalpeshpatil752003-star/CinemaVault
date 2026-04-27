@@ -22,6 +22,13 @@ export default function NotificationDropdown() {
   }, []);
 
   const fetchNotifications = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
+
     try {
       const data = await apiClient.get("/notifications");
       setNotifications(data);
